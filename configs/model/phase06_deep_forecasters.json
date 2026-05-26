@@ -1,0 +1,68 @@
+{
+  "schema_version": "phase06_v1",
+  "task": "process_only_deep_controlled_forecasting",
+  "hpc_project_root": "<HPC_PROJECT_ROOT>",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps": 10,
+  "horizon_steps": [
+    1,
+    5,
+    20
+  ],
+  "forecast_modes": [
+    "blind",
+    "controlled"
+  ],
+  "model_families": [
+    "gru",
+    "tcn",
+    "transformer"
+  ],
+  "seeds": [
+    20260521
+  ],
+  "training": {
+    "epochs": 120,
+    "batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "patience": 18,
+    "grad_clip_norm": 1.0,
+    "num_workers": 1,
+    "pin_memory": true,
+    "selection_split": "val_normal",
+    "selection_metric": "val_loss_mse_scaled",
+    "loss": "MSE on train-normal-standard-deviation-scaled targets"
+  },
+  "hyperparameters": {
+    "gru": {
+      "hidden_dim": 192,
+      "num_layers": 2,
+      "dropout": 0.1
+    },
+    "tcn": {
+      "hidden_dim": 192,
+      "num_layers": 5,
+      "kernel_size": 3,
+      "dropout": 0.1
+    },
+    "transformer": {
+      "hidden_dim": 192,
+      "num_layers": 4,
+      "num_heads": 6,
+      "dropout": 0.1,
+      "max_len": 512
+    }
+  },
+  "output_root": "outputs/phase06_deep_forecasters",
+  "paper_asset_manifest": "outputs/paper_assets/manifests/phase_06_hpc_package_assets.json",
+  "notes": [
+    "Set hpc_project_root or submit the SLURM templates after placing the repository on the target cluster."
+  ]
+}

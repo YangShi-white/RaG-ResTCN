@@ -1,0 +1,162 @@
+{
+  "schema_version": "phase15_v1",
+  "task": "strict_gap_completion_against_revision_requirements",
+  "hpc_project_root": "<HPC_PROJECT_ROOT>",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "phase08_pca_scores": "outputs/phase08_raman_multimodal/features/raman_pca_scores.npz",
+  "phase08_pca_models": "outputs/phase08_raman_multimodal/models/raman_pca_models.npz",
+  "phase08_config": "configs/model/phase08_raman_multimodal.json",
+  "phase07_mechanism_batch_scores": "outputs/phase07_mechanism_diagnostics/metrics/mechanism_batch_scores.csv",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps": 10,
+  "history_steps_grid": [
+    5,
+    10,
+    20,
+    40
+  ],
+  "horizon_steps": [
+    1,
+    5,
+    20,
+    40,
+    60
+  ],
+  "forecast_mode": "controlled",
+  "ridge_alpha_grid": [
+    0.0001,
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0,
+    1000.0
+  ],
+  "raman_methods": [
+    "raw",
+    "sg1_snv",
+    "sg2_snv",
+    "airpls_snv"
+  ],
+  "primary_raman_method": "airpls_snv",
+  "pca_component_grid": [
+    5,
+    10,
+    20,
+    32,
+    50
+  ],
+  "residual_models": [
+    "residual_process_tcn",
+    "residual_naive_raman_tcn",
+    "residual_global_gate_tcn",
+    "residual_attention_tcn",
+    "residual_target_gate_tcn"
+  ],
+  "model_label_map": {
+    "ridge_only": "Ridge",
+    "residual_process_tcn": "No Raman",
+    "residual_naive_raman_tcn": "Concat",
+    "residual_global_gate_tcn": "Gate",
+    "residual_attention_tcn": "Attention",
+    "residual_target_gate_tcn": "Target Gate"
+  },
+  "seeds": [
+    20260521,
+    20260522,
+    20260523,
+    20260524,
+    20260525
+  ],
+  "training": {
+    "epochs": 180,
+    "batch_size": 256,
+    "learning_rate": 0.0006,
+    "weight_decay": 0.0001,
+    "patience": 28,
+    "min_delta": 1e-08,
+    "grad_clip_norm": 1.0,
+    "num_workers": 1,
+    "pin_memory": true,
+    "selection_split": "val_normal",
+    "selection_metric": "val_loss_mse_residual_z",
+    "loss": "MSE on ridge residuals standardized by train-normal residual standard deviation"
+  },
+  "hyperparameters": {
+    "hidden_dim": 160,
+    "num_layers": 4,
+    "kernel_size": 3,
+    "dropout": 0.1,
+    "raman_embedding_dim": 160
+  },
+  "bootstrap": {
+    "enabled": true,
+    "repeats": 2000,
+    "seed": 20260524,
+    "split": "test_normal",
+    "comparisons": [
+      [
+        "ridge_only",
+        "none",
+        "residual_process_tcn",
+        "none"
+      ],
+      [
+        "residual_process_tcn",
+        "none",
+        "residual_naive_raman_tcn",
+        "airpls_snv"
+      ],
+      [
+        "residual_naive_raman_tcn",
+        "airpls_snv",
+        "residual_global_gate_tcn",
+        "airpls_snv"
+      ],
+      [
+        "residual_global_gate_tcn",
+        "airpls_snv",
+        "residual_attention_tcn",
+        "airpls_snv"
+      ],
+      [
+        "residual_attention_tcn",
+        "airpls_snv",
+        "residual_target_gate_tcn",
+        "airpls_snv"
+      ]
+    ]
+  },
+  "uncertainty": {
+    "enabled": true,
+    "interval_z": 1.96,
+    "conformal_alpha": 0.1,
+    "splits": [
+      "test_normal",
+      "test_fault"
+    ]
+  },
+  "fault_detection": {
+    "enabled": true,
+    "threshold_quantile": 0.99,
+    "splits": [
+      "test_normal",
+      "test_fault"
+    ]
+  },
+  "output_root": "outputs/phase15_strict_gap_completion",
+  "paper_asset_root": "outputs/paper_assets",
+  "notes": [
+    "This phase extends the final residual matrix to horizons 1/5/20/40/60 and five seeds.",
+    "The residual model list explicitly covers no Raman, concat, global gate, attention, and target gate variants.",
+    "All residual models are trained from real data with early stopping using min_delta and patience.",
+    "PCA dimension, raw-spectrum, history-length, leakage-scaling, leave-one-batch, chronological-split, complexity, uncertainty, bootstrap, and PC-loading analyses are generated from real saved predictions or real data matrices.",
+    "No random numbers are used to fabricate loss curves or performance results."
+  ]
+}

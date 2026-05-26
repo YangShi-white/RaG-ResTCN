@@ -1,0 +1,35 @@
+{
+  "schema_version": "phase05_v1",
+  "task": "process_only_controlled_forecasting_baselines",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "history_steps": 10,
+  "horizon_steps": [
+    1,
+    5,
+    20
+  ],
+  "target_missing_ratio_max": 0.05,
+  "ridge_alpha_grid": [
+    0.0001,
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0
+  ],
+  "models": [
+    "persistence",
+    "blind_ridge",
+    "controlled_ridge"
+  ],
+  "controlled_forecasting_rule": {
+    "blind_ridge": "uses historical endogenous states and historical exogenous controls only",
+    "controlled_ridge": "uses the same history plus future known exogenous controls at the prediction horizon",
+    "target_rule": "targets are dense endogenous process states only"
+  },
+  "output_root": "outputs/phase05_process_baselines"
+}

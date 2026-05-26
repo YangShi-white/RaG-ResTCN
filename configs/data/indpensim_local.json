@@ -1,0 +1,10 @@
+{
+  "dataset_name": "IndPenSim",
+  "raw_csv": "data/raw/100_Batches_IndPenSim_V3.csv",
+  "statistics_csv": "data/raw/100_Batches_IndPenSim_Statistics.csv",
+  "notes": [
+    "Place the IndPenSim raw CSV files under data/raw before running preprocessing.",
+    "Do not edit raw files in place.",
+    "Generated processed files are written under data/processed."
+  ]
+}

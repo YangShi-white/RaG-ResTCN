@@ -1,0 +1,62 @@
+{
+  "schema_version": "phase07_v1",
+  "task": "mechanism_residual_diagnostics",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "phase05_ridge_coefficients": "outputs/phase05_process_baselines/models/ridge_coefficients.npz",
+  "phase06_prediction_run": "outputs/phase06_deep_forecasters/runs/tcn_controlled_h20_seed20260521",
+  "history_steps": 10,
+  "controlled_ridge_horizon_steps": 20,
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "batch_score_quantile": 0.95,
+  "visual_threshold_quantile": 0.99,
+  "volume_balance": {
+    "positive_flow_columns": [
+      "Sugar feed rate(Fs:L/h)",
+      "Acid flow rate(Fa:L/h)",
+      "Base flow rate(Fb:L/h)",
+      "Water for injection/dilution(Fw:L/h)",
+      "PAA flow(Fpaa:PAA flow (L/h))",
+      "Oil flow(Foil:L/hr)"
+    ],
+    "negative_flow_columns": [
+      "Dumped broth flow(Fremoved:L/h)"
+    ]
+  },
+  "residual_channels": [
+    "volume_balance_L_per_h",
+    "substrate_mass_balance_g_per_h",
+    "product_mass_balance_g_per_h",
+    "respiration_rq"
+  ],
+  "composite_residual_channels": [
+    "substrate_mass_balance_g_per_h",
+    "respiration_rq"
+  ],
+  "auxiliary_residual_channels": [
+    "volume_balance_L_per_h",
+    "product_mass_balance_g_per_h"
+  ],
+  "case_study_channels": [
+    "substrate_mass_balance_g_per_h",
+    "respiration_rq"
+  ],
+  "kinetic_proxy_models": {
+    "substrate_mass_balance_g_per_h": "d(V*S)/dt = beta0 + beta_feed * Fs - beta_our * max(60*OUR, 0)",
+    "product_mass_balance_g_per_h": "d(V*P)/dt = beta0 + beta_our * max(60*OUR, 0) + beta_paa * Fpaa - beta_deg * max(V*P, 0)",
+    "respiration_rq": "RQ residual = RQ - train-normal median RQ"
+  },
+  "output_root": "outputs/phase07_mechanism_diagnostics",
+  "paper_asset_manifest": "outputs/paper_assets/manifests/phase_07_paper_assets.json",
+  "notes": [
+    "All residual centers, scales, kinetic proxy coefficients, and composite-score rules are defined from train_normal batches and prior process observability criteria.",
+    "The primary composite mechanism score uses substrate mass-balance and respiratory quotient residuals because they are dense online metabolic channels with direct biochemical interpretation and stable train-normal fit behavior.",
+    "Volume balance and product mass-balance residuals are retained as auxiliary diagnostic channels, but excluded from the primary composite score because normal batches show strong volume derivative spikes and the product proxy lacks dense biomass/growth-rate observability.",
+    "The visual threshold is the train-normal quantile and is used only for plots, not for model selection.",
+    "test_fault batches are used only for final diagnostic evaluation.",
+    "The substrate and product residuals are empirical fed-batch mass-balance residuals with train-normal fitted nonnegative proxy coefficients because exact feed concentrations and latent biomass are not directly available at dense sampling frequency."
+  ]
+}

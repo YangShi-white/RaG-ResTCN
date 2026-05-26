@@ -1,0 +1,141 @@
+{
+  "schema_version": "phase12_v1",
+  "task": "enhanced_strong_baselines_ablation_stability_fault_cases",
+  "hpc_project_root": "<HPC_PROJECT_ROOT>",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps": 10,
+  "horizon_steps": [
+    1,
+    5,
+    20
+  ],
+  "forecast_modes": [
+    "blind",
+    "controlled"
+  ],
+  "model_families": [
+    "gru",
+    "tcn",
+    "transformer"
+  ],
+  "tuning_seed": 20260521,
+  "final_seeds": [
+    20260521,
+    20260522,
+    20260523
+  ],
+  "selection_split": "val_normal",
+  "selection_metric": "best_val_loss_mse_scaled",
+  "training": {
+    "tuning_epochs": 90,
+    "final_epochs": 140,
+    "batch_size": 512,
+    "weight_decay": 0.0001,
+    "patience": 18,
+    "min_delta": 1e-08,
+    "grad_clip_norm": 1.0,
+    "num_workers": 1,
+    "pin_memory": true,
+    "loss": "MSE on train-normal-standard-deviation-scaled dense process targets"
+  },
+  "hyperparameter_grid": {
+    "gru": [
+      {
+        "grid_id": "gru_h128_l2_d005_lr1e3",
+        "hidden_dim": 128,
+        "num_layers": 2,
+        "dropout": 0.05,
+        "learning_rate": 0.001
+      },
+      {
+        "grid_id": "gru_h192_l2_d010_lr8e4",
+        "hidden_dim": 192,
+        "num_layers": 2,
+        "dropout": 0.1,
+        "learning_rate": 0.0008
+      },
+      {
+        "grid_id": "gru_h256_l3_d010_lr6e4",
+        "hidden_dim": 256,
+        "num_layers": 3,
+        "dropout": 0.1,
+        "learning_rate": 0.0006
+      }
+    ],
+    "tcn": [
+      {
+        "grid_id": "tcn_h128_l4_k3_d005_lr1e3",
+        "hidden_dim": 128,
+        "num_layers": 4,
+        "kernel_size": 3,
+        "dropout": 0.05,
+        "learning_rate": 0.001
+      },
+      {
+        "grid_id": "tcn_h192_l5_k3_d010_lr8e4",
+        "hidden_dim": 192,
+        "num_layers": 5,
+        "kernel_size": 3,
+        "dropout": 0.1,
+        "learning_rate": 0.0008
+      },
+      {
+        "grid_id": "tcn_h256_l5_k5_d010_lr6e4",
+        "hidden_dim": 256,
+        "num_layers": 5,
+        "kernel_size": 5,
+        "dropout": 0.1,
+        "learning_rate": 0.0006
+      }
+    ],
+    "transformer": [
+      {
+        "grid_id": "tr_h128_l3_h4_d005_lr8e4",
+        "hidden_dim": 128,
+        "num_layers": 3,
+        "num_heads": 4,
+        "dropout": 0.05,
+        "learning_rate": 0.0008,
+        "max_len": 512
+      },
+      {
+        "grid_id": "tr_h192_l4_h4_d010_lr6e4",
+        "hidden_dim": 192,
+        "num_layers": 4,
+        "num_heads": 4,
+        "dropout": 0.1,
+        "learning_rate": 0.0006,
+        "max_len": 512
+      },
+      {
+        "grid_id": "tr_h256_l4_h8_d010_lr4e4",
+        "hidden_dim": 256,
+        "num_layers": 4,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "learning_rate": 0.0004,
+        "max_len": 512
+      }
+    ]
+  },
+  "output_root": "outputs/phase12_enhanced_experiments",
+  "reference_metrics": {
+    "phase05_metrics": "outputs/phase05_process_baselines/metrics/process_baseline_metrics.csv",
+    "phase06_metrics": "outputs/phase06_deep_forecasters/combined/phase06_combined_metrics.csv",
+    "phase07_mechanism_batch_scores": "outputs/phase07_mechanism_diagnostics/metrics/mechanism_batch_scores.csv",
+    "phase10_metrics": "outputs/phase10_residual_multimodal/combined/phase10_combined_metrics.csv"
+  },
+  "notes": [
+    "Phase12 tunes process-only GRU/TCN/Transformer baselines on val_normal before final multi-seed reruns.",
+    "Tuning uses one fixed tuning seed; final evaluation uses three seeds with the selected hyperparameters.",
+    "All loss values are checked for finite values; NaN or Inf raises an error instead of being silently replaced.",
+    "Early stopping uses patience and min_delta, and every run records stop_reason.",
+    "test_fault is evaluation-only and is never used for hyperparameter selection."
+  ]
+}

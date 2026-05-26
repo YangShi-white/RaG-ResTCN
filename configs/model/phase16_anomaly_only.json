@@ -1,0 +1,128 @@
+{
+  "schema_version": "phase16_anomaly_only_v1",
+  "task": "phase16_anomaly_baselines_only",
+  "hpc_project_root": "<HPC_PROJECT_ROOT>",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps_grid": [
+    10,
+    20,
+    40
+  ],
+  "horizon_steps": [
+    1,
+    5,
+    20,
+    40,
+    60
+  ],
+  "forecast_mode": "controlled",
+  "tuning_seed": 20260521,
+  "final_seeds": [
+    20260521,
+    20260522,
+    20260523
+  ],
+  "classical_train_max_windows_per_batch": 260,
+  "classical_eval_max_windows_per_batch": null,
+  "gp_train_max_samples": 700,
+  "patchtst_train_max_windows_per_batch": 360,
+  "patchtst_eval_max_windows_per_batch": null,
+  "selection_split": "val_normal",
+  "selection_metric": "mean_nrmse_train_std",
+  "classical_baselines": {},
+  "patchtst": {
+    "enabled": false,
+    "tuning_grids": [],
+    "training": {
+      "tuning_epochs": 0,
+      "final_epochs": 0,
+      "batch_size": 512,
+      "weight_decay": 0.0001,
+      "patience": 18,
+      "min_delta": 1e-08,
+      "grad_clip_norm": 1.0,
+      "num_workers": 1,
+      "pin_memory": false
+    }
+  },
+  "anomaly_baselines": {
+    "enabled": true,
+    "history_steps": 20,
+    "train_max_windows_per_batch": 320,
+    "kernel_train_max_samples": 4000,
+    "autoencoder_train_max_samples": 8000,
+    "eval_stride": 4,
+    "threshold_quantile": 0.99,
+    "pca_components_grid": [
+      5,
+      10,
+      20,
+      30
+    ],
+    "one_class_svm_grid": [
+      {
+        "grid_id": "ocsvm_nu001_gamma_scale",
+        "nu": 0.01,
+        "gamma": "scale"
+      },
+      {
+        "grid_id": "ocsvm_nu003_gamma_scale",
+        "nu": 0.03,
+        "gamma": "scale"
+      }
+    ],
+    "isolation_forest_grid": [
+      {
+        "grid_id": "if_t400_cont001",
+        "n_estimators": 400,
+        "contamination": 0.01,
+        "max_samples": 0.8
+      },
+      {
+        "grid_id": "if_t600_cont002",
+        "n_estimators": 600,
+        "contamination": 0.02,
+        "max_samples": 0.8
+      }
+    ],
+    "autoencoder_grid": [
+      {
+        "grid_id": "ae_h256_z32_lr1e3",
+        "hidden_dim": 256,
+        "latent_dim": 32,
+        "learning_rate": 0.001
+      },
+      {
+        "grid_id": "ae_h384_z48_lr8e4",
+        "hidden_dim": 384,
+        "latent_dim": 48,
+        "learning_rate": 0.0008
+      }
+    ],
+    "autoencoder_training": {
+      "epochs": 120,
+      "batch_size": 512,
+      "weight_decay": 0.0001,
+      "patience": 18,
+      "min_delta": 1e-08,
+      "num_workers": 1,
+      "pin_memory": false
+    }
+  },
+  "output_root": "outputs/phase16_anomaly_only",
+  "paper_asset_root": "outputs/paper_assets",
+  "reference_phase15_table": "outputs/paper_assets/tables/Fig43_phase15_main_prediction_horizon_matrix_data.csv",
+  "notes": [
+    "This config is for anomaly baselines only. Forecasting baselines are intentionally disabled.",
+    "All anomaly detectors are fitted on train_normal only.",
+    "Thresholds are selected from train_normal score quantiles.",
+    "Final evaluation uses test_normal and test_fault.",
+    "Figures do not include significance marks or error bars."
+  ]
+}

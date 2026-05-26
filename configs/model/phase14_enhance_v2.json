@@ -1,0 +1,329 @@
+{
+  "schema_version": "phase14_v1",
+  "task": "enhance_v2_evidence_completion",
+  "hpc_project_root": "<HPC_PROJECT_ROOT>",
+  "phase10_config": "configs/model/phase10_residual_multimodal.json",
+  "phase07_config": "configs/model/phase07_mechanism_diagnostics.json",
+  "phase10_output_root": "outputs/phase10_residual_multimodal",
+  "phase08_pca_scores": "outputs/phase08_raman_multimodal/features/raman_pca_scores.npz",
+  "output_root": "outputs/phase14_enhance_v2",
+  "paper_asset_root": "outputs/paper_assets",
+  "device": "auto",
+  "batch_size": 512,
+  "num_workers": 1,
+  "perturbation_seed": 20260523,
+  "bootstrap_repeats": 1000,
+  "bootstrap_seed": 20260524,
+  "raman_robustness": {
+    "enabled": true,
+    "splits": [
+      "test_normal",
+      "test_fault"
+    ],
+    "residual_models": [
+      "residual_naive_raman_tcn",
+      "residual_target_gate_tcn"
+    ],
+    "raman_methods": [
+      "sg1_snv",
+      "sg2_snv",
+      "airpls_snv"
+    ],
+    "horizon_steps": [
+      1,
+      5,
+      20
+    ],
+    "seeds": [
+      20260521,
+      20260522,
+      20260523
+    ],
+    "scenarios": [
+      {
+        "name": "clean",
+        "type": "clean"
+      },
+      {
+        "name": "missing_10",
+        "type": "sample_dropout",
+        "rate": 0.1
+      },
+      {
+        "name": "missing_30",
+        "type": "sample_dropout",
+        "rate": 0.3
+      },
+      {
+        "name": "missing_50",
+        "type": "sample_dropout",
+        "rate": 0.5
+      },
+      {
+        "name": "missing_70",
+        "type": "sample_dropout",
+        "rate": 0.7
+      },
+      {
+        "name": "noise_005",
+        "type": "gaussian_noise",
+        "std_ratio": 0.05
+      },
+      {
+        "name": "noise_010",
+        "type": "gaussian_noise",
+        "std_ratio": 0.1
+      },
+      {
+        "name": "noise_020",
+        "type": "gaussian_noise",
+        "std_ratio": 0.2
+      },
+      {
+        "name": "delay_1",
+        "type": "within_batch_delay",
+        "lag_samples": 1
+      },
+      {
+        "name": "delay_3",
+        "type": "within_batch_delay",
+        "lag_samples": 3
+      },
+      {
+        "name": "delay_5",
+        "type": "within_batch_delay",
+        "lag_samples": 5
+      },
+      {
+        "name": "zero_raman",
+        "type": "zero"
+      }
+    ]
+  },
+  "uncertainty": {
+    "enabled": true,
+    "interval_z": 1.96,
+    "splits": [
+      "test_normal",
+      "test_fault"
+    ],
+    "ensemble_configs": [
+      {
+        "name": "Final_H1_Process",
+        "residual_model": "residual_process_tcn",
+        "raman_method": "none",
+        "horizon_steps": 1
+      },
+      {
+        "name": "Final_H5_TargetGate_airPLS",
+        "residual_model": "residual_target_gate_tcn",
+        "raman_method": "airpls_snv",
+        "horizon_steps": 5
+      },
+      {
+        "name": "Final_H20_Process",
+        "residual_model": "residual_process_tcn",
+        "raman_method": "none",
+        "horizon_steps": 20
+      },
+      {
+        "name": "TargetGate_airPLS_H1",
+        "residual_model": "residual_target_gate_tcn",
+        "raman_method": "airpls_snv",
+        "horizon_steps": 1
+      },
+      {
+        "name": "TargetGate_airPLS_H20",
+        "residual_model": "residual_target_gate_tcn",
+        "raman_method": "airpls_snv",
+        "horizon_steps": 20
+      }
+    ],
+    "seeds": [
+      20260521,
+      20260522,
+      20260523
+    ]
+  },
+  "bootstrap": {
+    "enabled": true,
+    "split": "test_normal",
+    "seeds": [
+      20260521,
+      20260522,
+      20260523
+    ],
+    "comparisons": [
+      {
+        "name": "H1_Ridge_vs_ResidualProcess",
+        "horizon_steps": 1,
+        "reference": {
+          "kind": "ridge",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        }
+      },
+      {
+        "name": "H5_Ridge_vs_ResidualProcess",
+        "horizon_steps": 5,
+        "reference": {
+          "kind": "ridge",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        }
+      },
+      {
+        "name": "H20_Ridge_vs_ResidualProcess",
+        "horizon_steps": 20,
+        "reference": {
+          "kind": "ridge",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        }
+      },
+      {
+        "name": "H1_Process_vs_TargetGate_airPLS",
+        "horizon_steps": 1,
+        "reference": {
+          "kind": "model",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_target_gate_tcn",
+          "raman_method": "airpls_snv"
+        }
+      },
+      {
+        "name": "H5_Process_vs_TargetGate_airPLS",
+        "horizon_steps": 5,
+        "reference": {
+          "kind": "model",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_target_gate_tcn",
+          "raman_method": "airpls_snv"
+        }
+      },
+      {
+        "name": "H20_Process_vs_TargetGate_airPLS",
+        "horizon_steps": 20,
+        "reference": {
+          "kind": "model",
+          "residual_model": "residual_process_tcn",
+          "raman_method": "none"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_target_gate_tcn",
+          "raman_method": "airpls_snv"
+        }
+      },
+      {
+        "name": "H5_Naive_airPLS_vs_TargetGate_airPLS",
+        "horizon_steps": 5,
+        "reference": {
+          "kind": "model",
+          "residual_model": "residual_naive_raman_tcn",
+          "raman_method": "airpls_snv"
+        },
+        "candidate": {
+          "kind": "model",
+          "residual_model": "residual_target_gate_tcn",
+          "raman_method": "airpls_snv"
+        }
+      }
+    ]
+  },
+  "early_warning": {
+    "enabled": true,
+    "prediction_threshold_quantile": 0.99,
+    "mechanism_threshold_quantile": 0.99,
+    "prediction_configs": [
+      {
+        "name": "Final_H20_Process",
+        "residual_model": "residual_process_tcn",
+        "raman_method": "none",
+        "horizon_steps": 20
+      },
+      {
+        "name": "Final_H5_TargetGate_airPLS",
+        "residual_model": "residual_target_gate_tcn",
+        "raman_method": "airpls_snv",
+        "horizon_steps": 5
+      }
+    ],
+    "seeds": [
+      20260521,
+      20260522,
+      20260523
+    ]
+  },
+  "gate_interpretability": {
+    "enabled": true,
+    "splits": [
+      "train_normal",
+      "val_normal",
+      "test_normal",
+      "test_fault"
+    ],
+    "raman_methods": [
+      "sg1_snv",
+      "sg2_snv",
+      "airpls_snv"
+    ],
+    "horizon_steps": [
+      1,
+      5,
+      20
+    ],
+    "seeds": [
+      20260521,
+      20260522,
+      20260523
+    ],
+    "phase_bins": [
+      {
+        "name": "early",
+        "min_fraction": 0.0,
+        "max_fraction": 0.33
+      },
+      {
+        "name": "middle",
+        "min_fraction": 0.33,
+        "max_fraction": 0.66
+      },
+      {
+        "name": "late",
+        "min_fraction": 0.66,
+        "max_fraction": 1.01
+      }
+    ]
+  },
+  "notes": [
+    "Phase14 does not fabricate new training curves or synthetic performance results.",
+    "Raman robustness uses saved Phase10 checkpoints and re-evaluates them under deterministic perturbations of Raman PCA inputs.",
+    "Uncertainty and bootstrap analyses use saved Phase10 predictions from the three real seeds.",
+    "Early warning uses train-normal thresholds only; test_fault is final evaluation only.",
+    "Figures do not include significance stars or error bars; bootstrap uncertainty is saved in CSV files."
+  ]
+}

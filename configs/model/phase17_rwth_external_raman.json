@@ -1,0 +1,161 @@
+{
+  "phase": "Phase 17",
+  "experiment_name": "RWTH external Raman soft-sensing validation",
+  "output_root": "outputs/phase17_rwth_external_raman",
+  "paper_asset_root": "outputs/paper_assets",
+  "default_data_root": "Raman_spectral_files_and_reference_concentrations",
+  "train_batches": [
+    "Fermentation F1 Training",
+    "Fermentation F2 Training",
+    "Fermentation F3 Training"
+  ],
+  "external_batches": [
+    "Fermentation F4 Validation",
+    "Fermentation F5 Control"
+  ],
+  "domain_shift_batches": [
+    "Fermentation with inline measurement"
+  ],
+  "target_columns": [
+    "Glucose [g/L]",
+    "Malic acid [g/L]",
+    "Succinic acid [g/L]",
+    "BTM [g/L]"
+  ],
+  "primary_targets_for_paper": [
+    "Glucose [g/L]",
+    "Malic acid [g/L]",
+    "Succinic acid [g/L]"
+  ],
+  "raman_grid": {
+    "start_cm": 300.0,
+    "end_cm": 3100.0,
+    "step_cm": 1.0
+  },
+  "preprocessing_methods": [
+    "snv",
+    "sg1_snv",
+    "sg2_snv",
+    "airpls_snv"
+  ],
+  "savgol_window": 31,
+  "savgol_polyorder": 3,
+  "airpls_lambda": 100000.0,
+  "airpls_iterations": 12,
+  "seeds": [
+    20260521,
+    20260522,
+    20260523,
+    20260524,
+    20260525
+  ],
+  "model_families": {
+    "PCR_Ridge": {
+      "enabled": true,
+      "n_components": [
+        4,
+        8,
+        16,
+        32,
+        64
+      ],
+      "alpha": [
+        0.1,
+        10.0,
+        100.0
+      ]
+    },
+    "PLS": {
+      "enabled": true,
+      "n_components": [
+        2,
+        4,
+        8,
+        12,
+        16
+      ]
+    },
+    "SVR_RBF": {
+      "enabled": true,
+      "n_components": [
+        8,
+        16,
+        32
+      ],
+      "C": [
+        1.0,
+        10.0,
+        100.0
+      ],
+      "epsilon": [
+        0.1
+      ]
+    },
+    "RandomForest": {
+      "enabled": true,
+      "n_components": [
+        16,
+        32
+      ],
+      "n_estimators": [
+        300
+      ],
+      "max_depth": [
+        null,
+        8
+      ],
+      "min_samples_leaf": [
+        1,
+        3
+      ]
+    },
+    "XGBoostOrHistGB": {
+      "enabled": true,
+      "n_components": [
+        16,
+        32
+      ],
+      "n_estimators": [
+        300
+      ],
+      "max_depth": [
+        2,
+        3
+      ],
+      "learning_rate": [
+        0.05
+      ]
+    },
+    "MLP": {
+      "enabled": true,
+      "n_components": [
+        16,
+        32
+      ],
+      "hidden_layer_sizes": [
+        [
+          64
+        ],
+        [
+          128,
+          64
+        ]
+      ],
+      "alpha": [
+        0.0001
+      ]
+    }
+  },
+  "export_full_trajectory_predictions": true,
+  "full_trajectory_batches": [
+    "Fermentation F4 Validation",
+    "Fermentation F5 Control",
+    "Fermentation with inline measurement"
+  ],
+  "notes": [
+    "This phase validates external Raman soft-sensing only; it must not be described as full FermNFTP multistep process forecasting.",
+    "Model selection uses only F1-F3 leave-one-batch-out cross-validation. F4, F5, and inline spectra are never used for hyperparameter selection.",
+    "Figures contain English labels only. Explanation Markdown files are written in Chinese.",
+    "No significance stars, p-value brackets, error bars, or confidence bands are drawn in figures."
+  ]
+}

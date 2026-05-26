@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rag-restcn-fermentation"
+version = "0.1.0"
+description = "Review package for Raman-gated residual controlled forecasting in fed-batch fermentation."
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "matplotlib",
+  "cycler",
+  "scikit-learn",
+  "xgboost",
+  "torch",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
