@@ -1,7 +1,0 @@
-figure,split,horizon_steps,comparison,test,n_proposed,n_xgboost,proposed_mean,xgboost_mean,t_statistic,p_value,significance
-nature_fig01_forecasting_nrmse,test_normal,1,Proposed vs XGBoost,Welch one-sided t-test on seed-level mean nRMSE; alternative: Proposed < XGBoost,5,3,0.024842415004968598,0.036734971241472104,-46.64736019096192,6.389815274894998e-08,***
-nature_fig01_forecasting_nrmse,test_normal,5,Proposed vs XGBoost,Welch one-sided t-test on seed-level mean nRMSE; alternative: Proposed < XGBoost,5,3,0.05036596283316608,0.05900303356658546,-12.338102573441335,0.00012003913829298371,***
-nature_fig01_forecasting_nrmse,test_normal,20,Proposed vs XGBoost,Welch one-sided t-test on seed-level mean nRMSE; alternative: Proposed < XGBoost,5,3,0.08997663408517834,0.11250323630002812,-151.3604706653927,2.236181727312046e-10,***
-nature_fig01_forecasting_nrmse,test_fault,1,Proposed vs XGBoost,Welch one-sided t-test on seed-level mean nRMSE; alternative: Proposed < XGBoost,5,3,0.14374032616615293,0.481211456708623,-260.2742328791586,7.681422662652817e-08,***
-nature_fig01_forecasting_nrmse,test_fault,5,Proposed vs XGBoost,Welch one-sided t-test on seed-level mean nRMSE; alternative: Proposed < XGBoost,5,3,0.3176997125148773,0.6458292303520933,-152.65112543850162,4.083025422715905e-10,***
-nature_fig01_forecasting_nrmse,test_fault,20,Proposed vs XGBoost,Welch one-sided t-test on seed-level mean nRMSE; alternative: Proposed < XGBoost,5,3,0.5360633850097656,0.7480725562282124,-301.83511727053485,1.0338097827032015e-07,***

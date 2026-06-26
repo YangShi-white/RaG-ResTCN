@@ -1,57 +1,68 @@
-# RaG-ResTCN: Raman-Gated Residual Forecasting for Fed-Batch Fermentation
+# RaG-ResTCN
 
-## English
+[中文说明](README_zh.md)
 
-This repository contains the clean review package for the paper project on controlled multi-step forecasting, Raman-assisted residual learning, anomaly diagnostics, and uncertainty evaluation in industrial fed-batch fermentation.
+RaG-ResTCN is a controlled residual learning framework for multi-horizon forecasting and fault-sensitive monitoring in fed-batch fermentation. It separates known future exogenous controls from unknown future endogenous states, combines a train-normal controlled ridge baseline with a causal residual temporal convolutional network, and supports target-wise Raman residual fusion.
 
-The main model is **RaG-ResTCN**, a target-wise Raman-gated residual temporal convolutional network. The implementation separates known future control inputs from unknown endogenous process states, fits a train-normal controlled ridge baseline, and trains a causal residual learner to model nonlinear corrections. Raman spectra are injected through target-wise gates rather than unconditional concatenation.
+This repository contains source code, experiment scripts, public configurations, and cluster submission examples only. Raw data, processed data, checkpoints, logs, result files, figures, and manuscript files are intentionally excluded.
 
-### Repository contents
+## Repository layout
 
 ```text
-configs/                 Experiment and data configuration files
-data/                    Raw-data placement instructions only; raw data are not included
+configs/data/            Data audit, preprocessing, split, and variable-role configs
+configs/model/           Forecasting, Raman, diagnostic, baseline, and ablation configs
 docs/                    Data availability and reproducibility notes
-hpc/slurm/               Example SLURM scripts for cluster execution
-results/                 Paper table CSVs and figure-source CSVs
-scripts/                 Data preparation, model training, baseline, diagnostic, and external Raman scripts
-src/fermnftp/            Shared Python package code
+hpc/                     SLURM submission examples
+scripts/                 Data preparation and experiment entry points
+src/fermnftp/            Shared data, metric, model, and plotting utilities
+pyproject.toml            Python package metadata
+requirements.txt         Runtime dependencies
 ```
 
-### Data
+## Requirements
 
-The IndPenSim raw benchmark data are not redistributed in this repository. Obtain them from:
+- Python 3.10 or newer
+- CUDA-capable PyTorch installation for GPU experiments
+- Linux is recommended for the provided SLURM scripts
 
-Goldrick, Stephen (2019), "Data for: Modern day monitoring and control challenges outlined on an industrial-scale benchmark fermentation process", Mendeley Data, V1, doi: `10.17632/pdnjz7zz5x.1`.
+Create an environment and install the project:
 
-Place the two CSV files under:
-
-```text
-data/raw/
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -e .
 ```
 
-Expected filenames:
+For GPU execution, install the PyTorch build matching the CUDA driver on the target machine before running the experiments.
+
+## Data
+
+Data are not distributed in this repository.
+
+### IndPenSim
+
+Obtain the IndPenSim benchmark from the original Mendeley Data record:
+
+> Goldrick, Stephen (2019), "Data for: Modern day monitoring and control challenges outlined on an industrial-scale benchmark fermentation process," Mendeley Data, V1. DOI: `10.17632/pdnjz7zz5x.1`.
+
+Create `data/raw/` and place these files in it:
 
 ```text
 100_Batches_IndPenSim_V3.csv
 100_Batches_IndPenSim_Statistics.csv
 ```
 
-The external Raman validation script expects the Grebe et al. Raman spectral files and reference concentrations dataset associated with doi: `10.1002/bit.70211`. Place that dataset in a local folder and pass it with `--data-root`.
+The default public configurations use repository-relative paths. Update `configs/data/indpensim_local.json` only if the files are stored elsewhere.
 
-### Installation
+### External Raman data
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
-export PYTHONPATH="${PWD}/src:${PYTHONPATH:-}"
-```
+The external Raman experiment uses the Raman spectral files and reference concentrations associated with DOI `10.1002/bit.70211`. Keep that dataset outside the repository and provide its location through `--data-root`.
 
-### Minimal reproduction workflow
+## Data preparation
 
-Run data preparation first:
+Run the preparation stages in order:
 
 ```bash
 python scripts/03_data_audit.py --config configs/data/indpensim_local.json
@@ -60,124 +71,73 @@ python scripts/05_build_splits.py --config configs/data/split_phase04.json
 python scripts/07_fit_train_normal_stats.py --processed-root data/processed/phase04
 ```
 
-Run Raman preprocessing and the residual forecasting model:
+The split is batch based. Scaling statistics, model-selection quantities, and monitoring thresholds are estimated from the designated training/validation partitions rather than from held-out test batches.
+
+## Main experiments
+
+Raman preprocessing and residual forecasting:
 
 ```bash
-python scripts/13_run_phase08_raman_multimodal.py --config configs/model/phase08_raman_multimodal.json
-python scripts/17_train_phase10_residual_multimodal.py --config configs/model/phase10_residual_multimodal.json --device auto
+python scripts/13_run_phase08_raman_multimodal.py \
+  --config configs/model/phase08_raman_multimodal.json
+
+python scripts/17_train_phase10_residual_multimodal.py \
+  --config configs/model/phase10_residual_multimodal.json \
+  --device auto
 ```
 
-Run the main evidence-generation and baseline scripts:
+Main component, baseline, anomaly, and external Raman experiments:
 
 ```bash
-python scripts/25_run_phase15_strict_gap_completion.py --config configs/model/phase15_strict_gap_completion.json
-python scripts/26_run_phase16_strong_baselines.py --config configs/model/phase16_strong_baselines.json --device auto --n-jobs 4
-python scripts/30_run_phase16_anomaly_only.py --config configs/model/phase16_anomaly_only.json --device cpu --n-jobs 16
+python scripts/25_run_phase15_strict_gap_completion.py \
+  --config configs/model/phase15_strict_gap_completion.json
+
+python scripts/26_run_phase16_strong_baselines.py \
+  --config configs/model/phase16_strong_baselines.json \
+  --device auto --n-jobs 4
+
+python scripts/30_run_phase16_anomaly_only.py \
+  --config configs/model/phase16_anomaly_only.json \
+  --device cpu --n-jobs 16
+
+python scripts/27_run_phase17_rwth_external_raman.py \
+  --config configs/model/phase17_rwth_external_raman.json \
+  --data-root /path/to/raman_dataset \
+  --n-jobs 16
 ```
 
-Run the external Raman support experiment when the external Raman dataset is available:
+## Modern deep baselines and future-control ablation
+
+The Phase 31 experiment evaluates Direct TCN, DLinear, iTransformer-Lite, and TSMixer over five horizons, four control-input modes, and five random seeds.
+
+Single-process execution:
 
 ```bash
-python scripts/27_run_phase17_rwth_external_raman.py --config configs/model/phase17_rwth_external_raman.json --data-root /path/to/Raman_spectral_files_and_reference_concentrations --n-jobs 16
+python scripts/31_run_infosci_modern_deep_baselines.py \
+  --config configs/model/phase31_infosci_modern_deep_baselines.json
 ```
 
-For cluster execution, edit the paths in `hpc/slurm/*.slurm` and submit the corresponding job.
-
-### Notes
-
-- Raw data are intentionally not included.
-- Intermediate checkpoints, logs, local return folders, and LaTeX build files are intentionally not included.
-- Paper table CSVs and figure-source CSVs are provided under `results/` for inspection.
-- All paths in the public configs are relative, except for user-specified data locations passed at runtime.
-
----
-
-## 中文
-
-本仓库是论文项目的 clean review 版本，用于编辑和审稿人查看代码、配置和关键结果表。项目研究工业补料分批发酵过程中的受控多步预测、Raman 辅助残差学习、异常诊断和不确定性评估。
-
-核心模型是 **RaG-ResTCN**，即目标级 Raman 门控残差时序卷积网络。它把未来已知控制输入和未来未知过程状态分开处理，先用正常训练批次拟合受控 ridge 基线，再用因果残差网络学习非线性修正。Raman 光谱不是简单拼接到所有目标上，而是通过目标级门控选择性进入预测。
-
-### 仓库内容
-
-```text
-configs/                 数据和实验配置
-data/                    原始数据放置说明；不包含原始数据
-docs/                    数据来源和复现实验说明
-hpc/slurm/               超算 SLURM 示例脚本
-results/                 论文表格 CSV 和图表源数据 CSV
-scripts/                 数据处理、模型训练、基线、诊断和外部 Raman 验证脚本
-src/fermnftp/            项目共享 Python 代码
-```
-
-### 数据
-
-本仓库不重新分发 IndPenSim 原始数据。原始数据来源为：
-
-Goldrick, Stephen (2019), "Data for: Modern day monitoring and control challenges outlined on an industrial-scale benchmark fermentation process", Mendeley Data, V1, doi: `10.17632/pdnjz7zz5x.1`.
-
-请将两个 CSV 文件放在：
-
-```text
-data/raw/
-```
-
-期望文件名：
-
-```text
-100_Batches_IndPenSim_V3.csv
-100_Batches_IndPenSim_Statistics.csv
-```
-
-外部 Raman 验证脚本使用 Grebe 等人的 Raman 光谱和参考浓度数据集，DOI 为 `10.1002/bit.70211`。该数据集需要本地放置，并通过 `--data-root` 指定。
-
-### 安装
+On a SLURM cluster with up to six L40 GPUs:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
-export PYTHONPATH="${PWD}/src:${PYTHONPATH:-}"
+bash hpc/submit_phase31_l40_array6.sh
 ```
 
-### 最小复现实验流程
-
-先运行数据处理：
+After all array tasks finish, merge the shard metrics:
 
 ```bash
-python scripts/03_data_audit.py --config configs/data/indpensim_local.json
-python scripts/04_preprocess_indpensim.py --config configs/data/preprocess_phase04.json
-python scripts/05_build_splits.py --config configs/data/split_phase04.json
-python scripts/07_fit_train_normal_stats.py --processed-root data/processed/phase04
+python scripts/32_collect_phase31_shards.py
 ```
 
-再运行 Raman 预处理和残差预测模型：
+Review the partition, CUDA module, environment name, and resource requests in `hpc/` before submission.
 
-```bash
-python scripts/13_run_phase08_raman_multimodal.py --config configs/model/phase08_raman_multimodal.json
-python scripts/17_train_phase10_residual_multimodal.py --config configs/model/phase10_residual_multimodal.json --device auto
-```
+## Reproducibility notes
 
-运行主要证据生成和强基线实验：
+- Experiment behavior is controlled by the JSON files under `configs/`.
+- Generated files are written under ignored output directories and should remain outside version control.
+- The repository does not include reported numerical results. Reproducing them requires the corresponding datasets and compute environment.
+- See [docs/reproducibility.md](docs/reproducibility.md) and [docs/data_availability.md](docs/data_availability.md) for additional details.
 
-```bash
-python scripts/25_run_phase15_strict_gap_completion.py --config configs/model/phase15_strict_gap_completion.json
-python scripts/26_run_phase16_strong_baselines.py --config configs/model/phase16_strong_baselines.json --device auto --n-jobs 4
-python scripts/30_run_phase16_anomaly_only.py --config configs/model/phase16_anomaly_only.json --device cpu --n-jobs 16
-```
+## Citation
 
-如果已经准备好外部 Raman 数据集，可以运行：
-
-```bash
-python scripts/27_run_phase17_rwth_external_raman.py --config configs/model/phase17_rwth_external_raman.json --data-root /path/to/Raman_spectral_files_and_reference_concentrations --n-jobs 16
-```
-
-如果使用超算，请先修改 `hpc/slurm/*.slurm` 中的路径，再提交任务。
-
-### 说明
-
-- 本仓库不包含原始数据。
-- 本仓库不包含中间 checkpoint、运行日志、本地回传目录或 LaTeX 编译缓存。
-- `results/` 中保留了论文表格 CSV 和图表源数据 CSV，便于核查。
-- 公开配置文件使用相对路径；外部数据路径由运行命令指定。
+The manuscript citation will be added after publication. Until then, cite this repository and the original datasets used in the experiment.

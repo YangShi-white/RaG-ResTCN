@@ -1,9 +1,0 @@
-figure,error_bar_source,significance_source,significance_file
-nature_fig01_forecasting_nrmse,Table_P1_short_medium_forecasting_vs_strong_baselines.csv std_nrmse,No significance marker is shown in the paper figure; seed-level Welch values are retained only as an internal sensitivity record,nature_fig01_forecasting_significance_vs_xgboost.csv
-nature_fig07_diagnostic_baseline_comparison,Proposed error bars from Table_P3 seed std; anomaly baselines report deterministic selected scores,"No valid paired statistical test was available across anomaly baselines, so no star marker was added",
-nature_fig08_uncertainty_rwth_combined,RWTH repeated deterministic runs yielded zero std; conformal summary has no seed variance column,"No valid statistical test was available, so no star marker was added",
-nature_fig02_paired_bootstrap_effects,Table_P5_paired_bootstrap_supported_internal_effects.csv bootstrap 95% CI,Existing paired bootstrap one-sided p-values,nature_fig02_paired_bootstrap_effects_data.csv
-nature_fig03_fault_generalization,Available std/CI columns where present; no fabricated uncertainty added,"No valid statistical test was available in the current result tables, so no star marker was added",
-nature_fig04_external_raman_validation,Available std/CI columns where present; no fabricated uncertainty added,"No valid statistical test was available in the current result tables, so no star marker was added",
-nature_fig05_conformal_uncertainty,Available std/CI columns where present; no fabricated uncertainty added,"No valid statistical test was available in the current result tables, so no star marker was added",
-nature_fig06_deployability,Available std/CI columns where present; no fabricated uncertainty added,"No valid statistical test was available in the current result tables, so no star marker was added",

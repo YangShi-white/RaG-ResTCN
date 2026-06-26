@@ -1,24 +1,34 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+.pytest_cache/
 .venv/
+venv/
 .env
 .DS_Store
 
-data/raw/*
-!data/raw/.gitkeep
-data/processed/
+# Datasets are obtained separately and must not be committed.
+/data/
 
-outputs/
-checkpoints/
-logs/
+# Generated artifacts.
+/outputs/
+/results/
+/checkpoints/
+/logs/
+/figures/
+/paper/
+*.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+*.csv
+*.parquet
 *.log
 *.out
 *.err
 
-*.aux
-*.bbl
-*.blg
-*.fdb_latexmk
-*.fls
-*.synctex.gz
+# Scheduler and editor artifacts.
+slurm-*.out
+.idea/
+.vscode/

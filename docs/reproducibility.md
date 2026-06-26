@@ -22,13 +22,6 @@ For GPU runs, install a PyTorch build compatible with the local CUDA environment
 
 The scripts write generated artifacts under `outputs/`, which is intentionally ignored by Git.
 
-## Result files included here
+## Generated results
 
-The repository includes small CSV files under:
-
-```text
-results/paper_tables/
-results/figure_source_data/
-```
-
-These files are provided for paper-result inspection. They are not raw data and are not required for rerunning the full pipeline.
+No numerical results, trained weights, predictions, tables, or figures are tracked in this repository. The experiment scripts generate their artifacts locally under `outputs/` or another configured output directory. These directories are ignored by Git.
