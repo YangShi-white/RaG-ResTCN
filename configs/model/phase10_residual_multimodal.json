@@ -1,0 +1,75 @@
+{
+  "schema_version": "phase10_v1",
+  "task": "residual_target_adaptive_multimodal_fermnftp",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "phase08_pca_scores": "outputs/phase08_raman_multimodal/features/raman_pca_scores.npz",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps": 10,
+  "horizon_steps": [
+    1,
+    5,
+    20
+  ],
+  "forecast_mode": "controlled",
+  "ridge_alpha_grid": [
+    0.0001,
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0,
+    1000.0
+  ],
+  "raman_methods": [
+    "sg1_snv",
+    "sg2_snv",
+    "airpls_snv"
+  ],
+  "residual_models": [
+    "residual_process_tcn",
+    "residual_naive_raman_tcn",
+    "residual_target_gate_tcn"
+  ],
+  "seeds": [
+    20260521,
+    20260522,
+    20260523
+  ],
+  "training": {
+    "epochs": 180,
+    "batch_size": 256,
+    "learning_rate": 0.0006,
+    "weight_decay": 0.0001,
+    "patience": 28,
+    "grad_clip_norm": 1.0,
+    "num_workers": 1,
+    "pin_memory": true,
+    "selection_split": "val_normal",
+    "selection_metric": "val_loss_mse_residual_z",
+    "loss": "MSE on ridge residuals standardized by train-normal residual standard deviation"
+  },
+  "hyperparameters": {
+    "hidden_dim": 160,
+    "num_layers": 4,
+    "kernel_size": 3,
+    "dropout": 0.1,
+    "raman_embedding_dim": 160
+  },
+  "output_root": "outputs/phase10_residual_multimodal",
+  "paper_asset_manifest": "outputs/paper_assets/manifests/phase_10_hpc_package_assets.json",
+  "notes": [
+    "Ridge-only baselines are fitted using train_normal and alpha-selected on val_normal.",
+    "Residual targets are y_scaled minus ridge_pred_scaled, then divided by train-normal residual standard deviation.",
+    "residual_process_tcn is the matched process residual baseline without Raman information.",
+    "residual_naive_raman_tcn uses process residual features and Raman PCA by direct concatenation.",
+    "residual_target_gate_tcn learns a per-target Raman gate; no manual target or Raman weights are used.",
+    "Raman spectra are used only at the source time; future controls are explicitly provided as known exogenous conditions.",
+    "test_fault is used only for final evaluation and never for baseline alpha, residual scale, or checkpoint selection."
+  ]
+}

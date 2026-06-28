@@ -1,0 +1,113 @@
+{
+  "schema_version": "phase04_v1",
+  "dataset": "IndPenSim",
+  "notes": [
+    "Raw Batch ID and raw Fault flag columns must not be used because the raw CSV header is shifted by two columns after Batch reference.",
+    "Batch IDs are inferred from Time (h) resets.",
+    "Batch-level fault labels are read from 100_Batches_IndPenSim_Statistics.csv.",
+    "Raman spectra are read from raw row positions 37:2237 and assigned wavelengths 2400 down to 201."
+  ],
+  "time": {
+    "columns": [
+      "Time (h)"
+    ]
+  },
+  "exogenous_controls": {
+    "description": "Known or scheduled control inputs that may be provided to controlled causal forecasting when their future values are known.",
+    "columns": [
+      "Aeration rate(Fg:L/h)",
+      "Agitator RPM(RPM:RPM)",
+      "Sugar feed rate(Fs:L/h)",
+      "Acid flow rate(Fa:L/h)",
+      "Base flow rate(Fb:L/h)",
+      "Heating/cooling water flow rate(Fc:L/h)",
+      "Heating water flow rate(Fh:L/h)",
+      "Water for injection/dilution(Fw:L/h)",
+      "Air head pressure(pressure:bar)",
+      "Dumped broth flow(Fremoved:L/h)",
+      "PAA flow(Fpaa:PAA flow (L/h))",
+      "Oil flow(Foil:L/hr)",
+      "Ammonia shots(NH3_shots:kgs)"
+    ]
+  },
+  "endogenous_states": {
+    "description": "Process states or reactor responses that must be predicted, reconstructed, or soft-sensed.",
+    "columns": [
+      "Substrate concentration(S:g/L)",
+      "Dissolved oxygen concentration(DO2:mg/L)",
+      "Penicillin concentration(P:g/L)",
+      "Vessel Volume(V:L)",
+      "Vessel Weight(Wt:Kg)",
+      "pH(pH:pH)",
+      "Temperature(T:K)",
+      "Generated heat(Q:kJ)",
+      "carbon dioxide percent in off-gas(CO2outgas:%)",
+      "PAA concentration offline(PAA_offline:PAA (g L^{-1}))",
+      "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+      "Oxygen Uptake Rate(OUR:(g min^{-1}))",
+      "Oxygen in percent in off-gas(O2:O2  (%))",
+      "Offline Penicillin concentration(P_offline:P(g L^{-1}))",
+      "Offline Biomass concentratio(X_offline:X(g L^{-1}))",
+      "Carbon evolution rate(CER:g/h)",
+      "Viscosity(Viscosity_offline:centPoise)"
+    ]
+  },
+  "online_soft_sensor_targets": {
+    "columns": [
+      "Offline Penicillin concentration(P_offline:P(g L^{-1}))",
+      "Offline Biomass concentratio(X_offline:X(g L^{-1}))",
+      "PAA concentration offline(PAA_offline:PAA (g L^{-1}))",
+      "NH_3 concentration off-line(NH3_offline:NH3 (g L^{-1}))",
+      "Viscosity(Viscosity_offline:centPoise)"
+    ]
+  },
+  "biokinetic_core": {
+    "description": "Physical-unit variables required by fed-batch mass-balance residuals.",
+    "columns": {
+      "substrate_concentration_g_per_L": "Substrate concentration(S:g/L)",
+      "penicillin_concentration_g_per_L": "Penicillin concentration(P:g/L)",
+      "offline_biomass_concentration_g_per_L": "Offline Biomass concentratio(X_offline:X(g L^{-1}))",
+      "volume_L": "Vessel Volume(V:L)",
+      "sugar_feed_rate_L_per_h": "Sugar feed rate(Fs:L/h)",
+      "dumped_broth_flow_L_per_h": "Dumped broth flow(Fremoved:L/h)",
+      "paa_feed_rate_L_per_h": "PAA flow(Fpaa:PAA flow (L/h))",
+      "oxygen_uptake_rate_g_per_min": "Oxygen Uptake Rate(OUR:(g min^{-1}))",
+      "carbon_evolution_rate_g_per_h": "Carbon evolution rate(CER:g/h)",
+      "dissolved_oxygen_mg_per_L": "Dissolved oxygen concentration(DO2:mg/L)"
+    },
+    "derived_outputs": [
+      "substrate_mass_g = Vessel Volume(V:L) * Substrate concentration(S:g/L)",
+      "penicillin_mass_g = Vessel Volume(V:L) * Penicillin concentration(P:g/L)",
+      "offline_biomass_mass_g = Vessel Volume(V:L) * Offline Biomass concentration(X_offline:g/L)",
+      "rq_proxy = CER(g/h) / (60 * OUR(g/min) + eps)",
+      "cumulative_sugar_feed_L = integral Sugar feed rate(Fs:L/h) dt"
+    ]
+  },
+  "raman": {
+    "raw_row_start_index": 37,
+    "raw_row_column_count": 2200,
+    "wavelength_start": 2400,
+    "wavelength_end": 201,
+    "wavelength_order": "descending",
+    "preprocessing_candidates": [
+      "raw",
+      "snv",
+      "sg_smoothing",
+      "sg_first_derivative",
+      "sg_second_derivative",
+      "asls_baseline_corrected",
+      "asls_baseline_corrected_snv"
+    ]
+  },
+  "metadata_or_labels": {
+    "columns": [
+      "Fault reference(Fault_ref:Fault ref)",
+      "0 - Recipe driven 1 - Operator controlled(Control_ref:Control ref)",
+      "1- No Raman spec",
+      " 1-Raman spec recorded",
+      "2-PAT control(PAT_ref:PAT ref)",
+      "Batch reference(Batch_ref:Batch ref)"
+    ],
+    "batch_fault_label_source": "100_Batches_IndPenSim_Statistics.csv"
+  }
+}

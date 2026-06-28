@@ -1,0 +1,232 @@
+{
+  "schema_version": "phase16_v1",
+  "task": "additional_strong_baselines_and_anomaly_detection",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps_grid": [
+    10,
+    20,
+    40
+  ],
+  "horizon_steps": [
+    1,
+    5,
+    20,
+    40,
+    60
+  ],
+  "forecast_mode": "controlled",
+  "tuning_seed": 20260521,
+  "final_seeds": [
+    20260521,
+    20260522,
+    20260523
+  ],
+  "classical_train_max_windows_per_batch": 260,
+  "classical_eval_max_windows_per_batch": null,
+  "gp_train_max_samples": 700,
+  "patchtst_train_max_windows_per_batch": 360,
+  "patchtst_eval_max_windows_per_batch": null,
+  "selection_split": "val_normal",
+  "selection_metric": "mean_nrmse_train_std",
+  "classical_baselines": {
+    "random_forest": [
+      {
+        "grid_id": "rf_h10_t300_d12_leaf2_sqrt",
+        "history_steps": 10,
+        "n_estimators": 300,
+        "max_depth": 12,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt"
+      },
+      {
+        "grid_id": "rf_h20_t500_d16_leaf2_sqrt",
+        "history_steps": 20,
+        "n_estimators": 500,
+        "max_depth": 16,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt"
+      },
+      {
+        "grid_id": "rf_h40_t500_dnone_leaf3_sqrt",
+        "history_steps": 40,
+        "n_estimators": 500,
+        "max_depth": null,
+        "min_samples_leaf": 3,
+        "max_features": "sqrt"
+      }
+    ],
+    "xgboost": [
+      {
+        "grid_id": "xgb_h10_t500_d3_lr003_sub09",
+        "history_steps": 10,
+        "n_estimators": 500,
+        "max_depth": 3,
+        "learning_rate": 0.03,
+        "subsample": 0.9,
+        "colsample_bytree": 0.9,
+        "reg_lambda": 1.0
+      },
+      {
+        "grid_id": "xgb_h20_t700_d4_lr003_sub08",
+        "history_steps": 20,
+        "n_estimators": 700,
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 1.0
+      },
+      {
+        "grid_id": "xgb_h40_t700_d5_lr002_sub08",
+        "history_steps": 40,
+        "n_estimators": 700,
+        "max_depth": 5,
+        "learning_rate": 0.02,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 2.0
+      }
+    ],
+    "gaussian_process": [
+      {
+        "grid_id": "gp_h10_pca20_rbf05_a1e4",
+        "history_steps": 10,
+        "feature_pca_components": 20,
+        "length_scale": 0.5,
+        "alpha": 0.0001
+      },
+      {
+        "grid_id": "gp_h20_pca30_rbf10_a1e3",
+        "history_steps": 20,
+        "feature_pca_components": 30,
+        "length_scale": 1.0,
+        "alpha": 0.001
+      },
+      {
+        "grid_id": "gp_h40_pca40_rbf20_a1e3",
+        "history_steps": 40,
+        "feature_pca_components": 40,
+        "length_scale": 2.0,
+        "alpha": 0.001
+      }
+    ]
+  },
+  "patchtst": {
+    "enabled": true,
+    "tuning_grids": [
+      {
+        "grid_id": "patchtst_h20_p4_s2_d128_l3_h4_lr8e4",
+        "history_steps": 20,
+        "patch_len": 4,
+        "stride": 2,
+        "d_model": 128,
+        "num_layers": 3,
+        "num_heads": 4,
+        "dropout": 0.1,
+        "learning_rate": 0.0008
+      },
+      {
+        "grid_id": "patchtst_h40_p5_s2_d160_l4_h4_lr6e4",
+        "history_steps": 40,
+        "patch_len": 5,
+        "stride": 2,
+        "d_model": 160,
+        "num_layers": 4,
+        "num_heads": 4,
+        "dropout": 0.1,
+        "learning_rate": 0.0006
+      }
+    ],
+    "training": {
+      "tuning_epochs": 80,
+      "final_epochs": 130,
+      "batch_size": 512,
+      "weight_decay": 0.0001,
+      "patience": 18,
+      "min_delta": 1e-08,
+      "grad_clip_norm": 1.0,
+      "num_workers": 1,
+      "pin_memory": true
+    }
+  },
+  "anomaly_baselines": {
+    "enabled": true,
+    "history_steps": 20,
+    "train_max_windows_per_batch": 320,
+    "kernel_train_max_samples": 4000,
+    "autoencoder_train_max_samples": 8000,
+    "eval_stride": 4,
+    "threshold_quantile": 0.99,
+    "pca_components_grid": [
+      5,
+      10,
+      20,
+      30
+    ],
+    "one_class_svm_grid": [
+      {
+        "grid_id": "ocsvm_nu001_gamma_scale",
+        "nu": 0.01,
+        "gamma": "scale"
+      },
+      {
+        "grid_id": "ocsvm_nu003_gamma_scale",
+        "nu": 0.03,
+        "gamma": "scale"
+      }
+    ],
+    "isolation_forest_grid": [
+      {
+        "grid_id": "if_t400_cont001",
+        "n_estimators": 400,
+        "contamination": 0.01,
+        "max_samples": 0.8
+      },
+      {
+        "grid_id": "if_t600_cont002",
+        "n_estimators": 600,
+        "contamination": 0.02,
+        "max_samples": 0.8
+      }
+    ],
+    "autoencoder_grid": [
+      {
+        "grid_id": "ae_h256_z32_lr1e3",
+        "hidden_dim": 256,
+        "latent_dim": 32,
+        "learning_rate": 0.001
+      },
+      {
+        "grid_id": "ae_h384_z48_lr8e4",
+        "hidden_dim": 384,
+        "latent_dim": 48,
+        "learning_rate": 0.0008
+      }
+    ],
+    "autoencoder_training": {
+      "epochs": 120,
+      "batch_size": 512,
+      "weight_decay": 0.0001,
+      "patience": 18,
+      "min_delta": 1e-08,
+      "num_workers": 1,
+      "pin_memory": true
+    }
+  },
+  "output_root": "outputs/phase16_strong_baselines",
+  "paper_asset_root": "outputs/paper_assets",
+  "reference_phase15_table": "outputs/paper_assets/tables/Fig43_phase15_main_prediction_horizon_matrix_data.csv",
+  "notes": [
+    "This phase adds RF, XGBoost, GP, PatchTST, and unsupervised anomaly baselines requested after Phase15.",
+    "All supervised hyperparameters are selected on val_normal only; test_normal and test_fault are final evaluation splits.",
+    "XGBoost is used when the xgboost Python package is installed. If it is unavailable, the script records an explicit HistGradientBoosting fallback instead of pretending that XGBoost ran.",
+    "Anomaly baselines are trained only on train_normal and evaluated by AUROC, AUPRC, false-alarm rate, detection rate, missed detection, batch-level F1, and delay.",
+    "Figures do not include significance marks or error bars; descriptive variability remains in CSV files."
+  ]
+}

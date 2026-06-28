@@ -1,0 +1,31 @@
+{
+  "schema_version": "phase04_v1",
+  "strategy": "deterministic_batch_order",
+  "rationale": [
+    "Fault batches are excluded from training and validation.",
+    "The first 90 batches are normal according to the statistics CSV; batches 91-100 are fault batches.",
+    "Normal batches are split in chronological batch order to avoid leaking later normal batches into early validation decisions.",
+    "Fault batches are held out for final anomaly and diagnosis evaluation only."
+  ],
+  "normal_train_batches": [
+    1,
+    70
+  ],
+  "normal_val_batches": [
+    71,
+    80
+  ],
+  "normal_test_batches": [
+    81,
+    90
+  ],
+  "fault_test_batches": [
+    91,
+    100
+  ],
+  "forbidden": [
+    "No fault batch may be used for scaler fitting.",
+    "No fault batch may be used for loss-weight selection.",
+    "No test batch may be used when estimating preprocessing thresholds or phase-token boundaries."
+  ]
+}

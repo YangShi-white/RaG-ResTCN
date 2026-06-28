@@ -1,0 +1,52 @@
+{
+  "phase": "unified_v2_modern_deep_baselines",
+  "description": "Unified-v2 modern deep baselines with horizon-specific future control vectors.",
+  "processed_root": "data/processed/phase04",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "target_missing_ratio_max": 0.05,
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "horizons": [1, 5, 20, 40, 60],
+  "history_steps": 20,
+  "repeat_seeds": [20260521, 20260522, 20260523, 20260524, 20260525],
+  "normal_split_counts": {
+    "train_normal": 70,
+    "val_normal": 10,
+    "test_normal": 10
+  },
+  "models": [
+    "direct_tcn",
+    "linear_mlp",
+    "dlinear_control",
+    "itransformer_lite",
+    "tsmixer"
+  ],
+  "control_modes": [
+    "future_controls",
+    "no_future_controls",
+    "last_control_carry",
+    "shuffled_future_controls"
+  ],
+  "train": {
+    "epochs": 160,
+    "batch_size": 256,
+    "learning_rate": 0.0007,
+    "weight_decay": 0.0001,
+    "patience": 24,
+    "min_delta": 1e-06,
+    "num_workers": 0,
+    "max_windows_per_batch_train": 700,
+    "max_windows_per_batch_eval": null,
+    "grad_clip_norm": 1.0
+  },
+  "model_params": {
+    "direct_tcn": {"hidden": 96, "levels": 4, "dropout": 0.12},
+    "linear_mlp": {"hidden": 128, "dropout": 0.08},
+    "dlinear_control": {"kernel_size": 9, "individual": false, "hidden": 96, "dropout": 0.05},
+    "itransformer_lite": {"d_model": 96, "nhead": 4, "layers": 2, "dropout": 0.12},
+    "tsmixer": {"hidden": 128, "blocks": 3, "dropout": 0.12}
+  },
+  "output_root": "outputs/unified_v2/modern_deep_baselines"
+}

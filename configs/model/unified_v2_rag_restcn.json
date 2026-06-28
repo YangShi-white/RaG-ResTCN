@@ -1,0 +1,108 @@
+{
+  "schema_version": "unified_v2",
+  "task": "unified_protocol_rag_restcn_and_modern_baselines",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "phase08_pca_scores": "outputs/phase08_raman_multimodal/features/raman_pca_scores.npz",
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "target_missing_ratio_max": 0.05,
+  "history_steps": 20,
+  "horizons": [1, 5, 20, 40, 60],
+  "horizon_steps": [1, 5, 20, 40, 60],
+  "repeat_seeds": [20260521, 20260522, 20260523, 20260524, 20260525],
+  "normal_split_counts": {
+    "train_normal": 70,
+    "val_normal": 10,
+    "test_normal": 10
+  },
+  "forecast_mode": "horizon_specific_control",
+  "control_semantics": "future_control_at_forecast_time_u_t_plus_h",
+  "ridge_alpha_grid": [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0],
+  "raman_methods": [
+    "sg1_snv",
+    "sg2_snv",
+    "airpls_snv",
+    "sg1_snv_zero",
+    "sg1_snv_shuffled"
+  ],
+  "base_raman_methods": ["sg1_snv", "sg2_snv", "airpls_snv"],
+  "residual_models": [
+    "residual_process_tcn",
+    "residual_naive_raman_tcn",
+    "residual_global_gate_tcn",
+    "residual_attention_tcn",
+    "residual_target_gate_tcn"
+  ],
+  "unified_tasks": [
+    {"residual_model": "residual_process_tcn", "raman_method": "none"},
+    {"residual_model": "residual_naive_raman_tcn", "raman_method": "sg1_snv"},
+    {"residual_model": "residual_global_gate_tcn", "raman_method": "sg1_snv"},
+    {"residual_model": "residual_attention_tcn", "raman_method": "sg1_snv"},
+    {"residual_model": "residual_target_gate_tcn", "raman_method": "sg1_snv"},
+    {"residual_model": "residual_target_gate_tcn", "raman_method": "sg1_snv_zero"},
+    {"residual_model": "residual_target_gate_tcn", "raman_method": "sg1_snv_shuffled"}
+  ],
+  "train": {
+    "epochs": 160,
+    "batch_size": 256,
+    "learning_rate": 0.0007,
+    "weight_decay": 0.0001,
+    "patience": 24,
+    "min_delta": 1e-06,
+    "num_workers": 0,
+    "max_windows_per_batch_train": 700,
+    "max_windows_per_batch_eval": null,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "epochs": 160,
+    "batch_size": 256,
+    "learning_rate": 0.0006,
+    "weight_decay": 0.0001,
+    "patience": 24,
+    "min_delta": 1e-06,
+    "grad_clip_norm": 1.0,
+    "num_workers": 0,
+    "pin_memory": true,
+    "selection_split": "val_normal",
+    "selection_metric": "val_loss_mse_residual_z",
+    "loss": "MSE on controlled-ridge residuals standardized by train-normal residual standard deviation"
+  },
+  "hyperparameters": {
+    "hidden_dim": 160,
+    "num_layers": 4,
+    "kernel_size": 3,
+    "dropout": 0.1,
+    "raman_embedding_dim": 160
+  },
+  "modern_baseline_models": [
+    "direct_tcn",
+    "linear_mlp",
+    "dlinear_control",
+    "itransformer_lite",
+    "tsmixer"
+  ],
+  "control_modes": [
+    "future_controls",
+    "no_future_controls",
+    "last_control_carry",
+    "shuffled_future_controls"
+  ],
+  "model_params": {
+    "direct_tcn": {"hidden": 96, "levels": 4, "dropout": 0.12},
+    "linear_mlp": {"hidden": 128, "dropout": 0.08},
+    "dlinear_control": {"kernel_size": 9, "individual": false, "hidden": 96, "dropout": 0.05},
+    "itransformer_lite": {"d_model": 96, "nhead": 4, "layers": 2, "dropout": 0.12},
+    "tsmixer": {"hidden": 128, "blocks": 3, "dropout": 0.12}
+  },
+  "output_root": "outputs/unified_v2",
+  "notes": [
+    "All models use history_steps=20 and horizon-specific future controls u(t+h).",
+    "Evaluation windows are uncapped by default; training windows are uniformly capped per batch for compute control.",
+    "Repeated splits are materialized by scripts/33_prepare_unified_v2_protocol.py before training.",
+    "Raman zero and shuffled variants preserve model structure and Raman dimensionality."
+  ]
+}

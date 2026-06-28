@@ -1,0 +1,27 @@
+{
+  "schema_version": "phase04_v1",
+  "data_config": "configs/data/indpensim_local.json",
+  "variable_roles": "configs/data/variable_roles.json",
+  "output_root": "data/processed/phase04",
+  "raman_sampling": {
+    "enabled": true,
+    "sample_step_hours": 5.0,
+    "raw_row_start_index": 37,
+    "raw_row_column_count": 2200,
+    "wavelength_start": 2400,
+    "wavelength_end": 201
+  },
+  "full_raman_export": {
+    "default_enabled": false,
+    "reason": "Full Raman export is large and is disabled by default. Enable it explicitly with --write-full-raman when needed."
+  },
+  "derived_features": [
+    "substrate_mass_g",
+    "penicillin_mass_g",
+    "offline_biomass_mass_g",
+    "rq_proxy",
+    "cumulative_sugar_feed_L",
+    "sugar_feed_rate_derivative_L_per_h2",
+    "do_slope_mg_per_L_per_h"
+  ]
+}

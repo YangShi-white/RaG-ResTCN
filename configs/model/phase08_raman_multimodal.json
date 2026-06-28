@@ -1,0 +1,59 @@
+{
+  "schema_version": "phase08_v1",
+  "task": "raman_preprocessing_and_multimodal_fusion",
+  "processed_root": "data/processed/phase04",
+  "split_csv": "data/processed/phase04/splits/batch_splits.csv",
+  "variable_roles": "configs/data/variable_roles.json",
+  "train_normal_scalers": "data/processed/phase04/stats/train_normal_scalers.json",
+  "history_steps": 10,
+  "horizon_steps": [
+    1,
+    5,
+    20
+  ],
+  "target_missing_ratio_max": 0.05,
+  "input_scale_key": "robust_scale",
+  "target_scale_key": "std",
+  "raman_preprocessing_methods": [
+    "raw",
+    "snv",
+    "sg1_snv",
+    "sg2_snv",
+    "airpls_snv"
+  ],
+  "recommended_chemometric_methods": [
+    "sg1_snv",
+    "sg2_snv",
+    "airpls_snv"
+  ],
+  "savgol_window": 31,
+  "savgol_polyorder": 3,
+  "airpls_lambda": 100000.0,
+  "airpls_iterations": 8,
+  "pca_components": 32,
+  "ridge_alpha_grid": [
+    0.0001,
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0,
+    1000.0
+  ],
+  "fusion_models": [
+    "process_controlled_ridge",
+    "process_raman_controlled_ridge"
+  ],
+  "selection_split": "val_normal",
+  "selection_metric": "mean_nrmse_train_std",
+  "output_root": "outputs/phase08_raman_multimodal",
+  "paper_asset_manifest": "outputs/paper_assets/manifests/phase_08_paper_assets.json",
+  "notes": [
+    "Raman spectra are used only at or before the forecasting source time; future Raman spectra are not used.",
+    "PCA centering, scaling, and components are fitted only from train_normal Raman spectra.",
+    "Ridge alpha and Raman preprocessing method are selected on val_normal only.",
+    "test_fault is used only for final evaluation, not for preprocessing selection or threshold selection.",
+    "Offline assay columns do not align with Raman sampling times in the Phase 04 processed table, so Phase 08 evaluates Raman as an auxiliary current-state modality for controlled forecasting rather than as a direct offline assay soft sensor."
+  ]
+}
